@@ -1,134 +1,232 @@
-public class Program
+namespace Console_Library_Manager
 {
-    public static void Main(string[] args)
+    public class Program
     {
-        List<string> books = new List<string>(){
-    "Clean Code",
-    "The Pragmatic Programmer",
-    "Design Patterns",
-    "Head First Design Patterns",
-    "Code Complete",
-    "Refactoring",
-    "The Clean Coder",
-    "Introduction to Algorithms",
-    "C# in Depth",
-    "Pro C# 10 with .NET 6",
-    "ASP.NET Core in Action",
-    "The C# Player's Guide",
-    "Domain-Driven Design",
-    "Cracking the Coding Interview",
-    "You Don't Know JS"
-};
-        List<string> borrowedBooks = new List<string>();
-
-        Console.WriteLine("Hello this is my small book shop please tell me how can I help you?");
-        Console.WriteLine("Do you want to add a book, search for a book, borrow a book, or return a book?");
-        Console.WriteLine("if you want to add a book please write 'add' and if you want to search for a book please write 'search' and if you want to borrow a book please write 'borrow' and if you want to return a book please write 'return' and then press enter.");
-
-        while (true)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("Please enter your choice:");
-            string input = (Console.ReadLine() ?? "").Trim().ToLower();
-
-            if (input == "add")
+            ILibraryRepository repository = new LibraryRepository();
+            while (true)
             {
-                Console.WriteLine("Please enter the name of the book you want to add:");
-                string bookToAdd = (Console.ReadLine() ?? "").Trim().ToLower();
-                // I do all of this because you told me to use linq and try and catch.
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(bookToAdd))
-                    {
-                        throw new Exception("Invalid book name. Please try again.");
-                    }
-                    bool alreadyAdded = books.Any(b => b.ToLower() == bookToAdd);
-                    if (alreadyAdded) throw new Exception("This book is already in the library.");
+                Console.WriteLine("1. Add Book");
+                Console.WriteLine("2. Search Book");
+                Console.WriteLine("3. Show All Books");
+                Console.WriteLine("4. Add Member");
+                Console.WriteLine("5. Search Member");
+                Console.WriteLine("6. Show All Members");
+                Console.WriteLine("7. Borrow Book");
+                Console.WriteLine("8. Return Book");
+                Console.WriteLine("0. Exit");
+                Console.Write("Enter your choice: ");
 
-                    books.Add(bookToAdd);
-                }
-                catch (Exception ex)
+                string? choice = Console.ReadLine()?.Trim();
+
+                if (choice == null || choice == "0")
                 {
-                    Console.WriteLine($"An error occurred: {ex.Message}");
+                    Console.WriteLine("Goodbye!");
+                    break;
                 }
-            }
-            else if (input == "search")
-            {
-                Console.WriteLine("Please enter the name of the book you want to search:");
-                string bookToSearch = (Console.ReadLine() ?? "").Trim().ToLower();
 
                 try
                 {
-                    if (string.IsNullOrWhiteSpace(bookToSearch))
+                    switch (choice)
                     {
-                        throw new Exception("Invalid book name. Please try again.");
-                    }
-                    bool bookFound = books.Any(b => b.ToLower() == bookToSearch);
-                    if (!bookFound) throw new Exception($"The book '{bookToSearch}' is not available in the library.");
-                    Console.WriteLine($"The book '{bookToSearch}' is available in the library.");
+                        case "1":
+                            AddBook(repository);
+                            break;
 
+                        case "2":
+                            SearchBook(repository);
+                            break;
+
+                        case "3":
+                            ShowAllBooks(repository);
+                            break;
+
+                        case "4":
+                            AddMember(repository);
+                            break;
+
+                        case "5":
+                            SearchMember(repository);
+                            break;
+
+                        case "6":
+                            ShowAllMembers(repository);
+                            break;
+
+                        case "7":
+                            BorrowBook(repository);
+                            break;
+
+                        case "8":
+                            ReturnBook(repository);
+                            break;
+
+                        default:
+                            Console.WriteLine("Invalid choice.");
+                            break;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"An error occurred: {ex.Message}");
+                    Console.WriteLine($"Error: {ex.Message}");
                 }
-
-            }
-            else if (input == "borrow")
-            {
-                Console.WriteLine("Please enter the name of the book you want to borrow:");
-                string bookToBorrow = (Console.ReadLine() ?? "").Trim().ToLower();
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(bookToBorrow))
-                    {
-                        throw new Exception("Invalid book name. Please try again.");
-                    }
-                    bool bookFound = books.Any(b => b.ToLower() == bookToBorrow);
-                    if (!bookFound) throw new Exception($"The book '{bookToBorrow}' is not available in the library.");
-                    bool alreadyBorrowed = borrowedBooks.Any(b => b.ToLower() == bookToBorrow);
-                    if (alreadyBorrowed) throw new Exception("This book is already borrowed.");
-                    borrowedBooks.Add(bookToBorrow);
-                    Console.WriteLine($"You have borrowed the book '{bookToBorrow}'.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An error occurred: {ex.Message}");
-                }
-            }
-            else if (input == "return")
-            {
-                Console.WriteLine("Please enter the name of the book you want to return:");
-                string bookToReturn = (Console.ReadLine() ?? "").Trim().ToLower();
-                try
-                {
-                    if (string.IsNullOrWhiteSpace(bookToReturn))
-                    {
-                        throw new Exception("Invalid book name. Please try again.");
-                    }
-                    bool bookFound = borrowedBooks.Any(b => b.ToLower() == bookToReturn);
-                    if (!bookFound) throw new Exception($"The book '{bookToReturn}' was not borrowed from this library.");
-
-                    borrowedBooks.Remove(bookToReturn);
-                    Console.WriteLine($"You have returned the book '{bookToReturn}'.");
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"An error occurred: {ex.Message}");
-                }
-            }
-            else
-            {
-                Console.WriteLine("Invalid input. Please try again.");
-            }
-
-            Console.WriteLine("if you want to continue, please enter 'yes' and if not enter any character:");
-            string continueInput = (Console.ReadLine() ?? "").Trim().ToLower();
-            if (continueInput != "yes")
-            {
-                break;
             }
         }
+        private static string ReadText(string message)
+        {
+            Console.Write(message);
 
-        Console.WriteLine("Thank you for using the library manager. Goodbye!");
+            string value = (Console.ReadLine() ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException("Input cannot be empty.");
+
+            return value;
+        }
+        private static int ReadNumber(string message)
+        {
+            string input = ReadText(message);
+
+            int number;
+
+            if (!int.TryParse(input, out number))
+                throw new ArgumentException("Please enter a valid number.");
+
+            return number;
+        }
+        private static void AddBook(ILibraryRepository repository)
+        {
+            string title = ReadText("Enter book title: ");
+            string author = ReadText("Enter author: ");
+            int year = ReadNumber("Enter publication year: ");
+
+            if (repository.GetBook(title) != null)
+                throw new InvalidOperationException("Book already exists.");
+
+            Book book = new Book(title, author, year);
+
+            repository.AddBook(book);
+
+            Console.WriteLine("Book added successfully.");
+        }
+        private static void SearchBook(ILibraryRepository repository)
+        {
+            string title = ReadText("Enter book title: ");
+
+            Book? book = repository.GetBook(title);
+
+            if (book == null)
+            {
+                Console.WriteLine("Book not found.");
+                return;
+            }
+
+            Console.WriteLine($"Title: {book.Title}");
+            Console.WriteLine($"Author: {book.Author}");
+            Console.WriteLine($"Year: {book.Year}");
+            Console.WriteLine($"Borrowed: {book.IsBorrowed}");
+        }
+        private static void ShowAllBooks(ILibraryRepository repository)
+        {
+            var books = repository.GetAllBooks();
+
+            if (!books.Any())
+            {
+                Console.WriteLine("No books available.");
+                return;
+            }
+
+            foreach (var book in books)
+            {
+                Console.WriteLine(
+                    $"{book.Title} - {book.Author} ({book.Year}) - " +
+                    (book.IsBorrowed ? "Borrowed" : "Available")
+                );
+            }
+        }
+        private static void AddMember(ILibraryRepository repository)
+        {
+            string name = ReadText("Enter member name: ");
+            int memberId = ReadNumber("Enter member ID: ");
+
+            if (repository.GetMember(memberId) != null)
+                throw new InvalidOperationException("Member already exists.");
+
+            Member member = new Member(name, memberId);
+
+            repository.AddMember(member);
+
+            Console.WriteLine("Member added successfully.");
+        }
+        private static void SearchMember(ILibraryRepository repository)
+        {
+            int memberId = ReadNumber("Enter member ID: ");
+
+            Member? member = repository.GetMember(memberId);
+
+            if (member == null)
+            {
+                Console.WriteLine("Member not found.");
+                return;
+            }
+
+            Console.WriteLine($"ID: {member.MemberId}");
+            Console.WriteLine($"Name: {member.Name}");
+            Console.WriteLine($"Borrowed books: {member.BorrowedBooks.Count}");
+        }
+        private static void ShowAllMembers(ILibraryRepository repository)
+        {
+            var members = repository.GetAllMembers();
+
+            if (!members.Any())
+            {
+                Console.WriteLine("No members found.");
+                return;
+            }
+
+            foreach (var member in members)
+            {
+                Console.WriteLine(
+                    $"ID: {member.MemberId} | Name: {member.Name}"
+                );
+            }
+        }
+        private static void BorrowBook(ILibraryRepository repository)
+        {
+            int memberId = ReadNumber("Enter member ID: ");
+            string title = ReadText("Enter book title: ");
+
+            Member? member = repository.GetMember(memberId);
+            Book? book = repository.GetBook(title);
+
+            if (member == null)
+                throw new InvalidOperationException("Member not found.");
+
+            if (book == null)
+                throw new InvalidOperationException("Book not found.");
+
+            member.BorrowBook(book);
+
+            Console.WriteLine($"'{book.Title}' borrowed by {member.Name}.");
+        }
+        private static void ReturnBook(ILibraryRepository repository)
+        {
+            int memberId = ReadNumber("Enter member ID: ");
+            string title = ReadText("Enter book title: ");
+
+            Member? member = repository.GetMember(memberId);
+            Book? book = repository.GetBook(title);
+
+            if (member == null)
+                throw new InvalidOperationException("Member not found.");
+
+            if (book == null)
+                throw new InvalidOperationException("Book not found.");
+
+            member.ReturnBook(book);
+
+            Console.WriteLine($"'{book.Title}' returned successfully.");
+        }
     }
 }
