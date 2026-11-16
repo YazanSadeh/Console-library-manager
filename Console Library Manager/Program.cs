@@ -1,4 +1,4 @@
-﻿public class Program
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -28,25 +28,23 @@
         while (true)
         {
             Console.WriteLine("Please enter your choice:");
-            string input = Console.ReadLine();
+            string input = (Console.ReadLine() ?? "").Trim().ToLower();
 
             if (input == "add")
             {
                 Console.WriteLine("Please enter the name of the book you want to add:");
-                string bookToAdd = Console.ReadLine();
-
+                string bookToAdd = (Console.ReadLine() ?? "").Trim().ToLower();
                 // I do all of this because you told me to use linq and try and catch.
                 try
                 {
-                    bool alreadyAdded = books.Where(b => b == bookToAdd).ToList().Count > 0;
-                    if (!alreadyAdded)
+                    if (string.IsNullOrWhiteSpace(bookToAdd))
                     {
-                        books.Add(bookToAdd);
+                        throw new Exception("Invalid book name. Please try again.");
                     }
-                    else
-                    {
-                        throw new Exception("This book is already in the library.");
-                    }
+                    bool alreadyAdded = books.Any(b => b.ToLower() == bookToAdd);
+                    if (alreadyAdded) throw new Exception("This book is already in the library.");
+
+                    books.Add(bookToAdd);
                 }
                 catch (Exception ex)
                 {
@@ -56,59 +54,66 @@
             else if (input == "search")
             {
                 Console.WriteLine("Please enter the name of the book you want to search:");
-                string bookToSearch = Console.ReadLine();
+                string bookToSearch = (Console.ReadLine() ?? "").Trim().ToLower();
 
-                bool bookFound = books.Where(b => b == bookToSearch).ToList().Count > 0;
-                if (bookFound)
+                try
                 {
+                    if (string.IsNullOrWhiteSpace(bookToSearch))
+                    {
+                        throw new Exception("Invalid book name. Please try again.");
+                    }
+                    bool bookFound = books.Any(b => b.ToLower() == bookToSearch);
+                    if (!bookFound) throw new Exception($"The book '{bookToSearch}' is not available in the library.");
                     Console.WriteLine($"The book '{bookToSearch}' is available in the library.");
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"The book '{bookToSearch}' is not available in the library.");
+                    Console.WriteLine($"An error occurred: {ex.Message}");
                 }
+
             }
             else if (input == "borrow")
             {
                 Console.WriteLine("Please enter the name of the book you want to borrow:");
-                string bookToBorrow = Console.ReadLine();
-                bool bookFound = books.Where(b => b == bookToBorrow).ToList().Count > 0;
-                if (bookFound)
+                string bookToBorrow = (Console.ReadLine() ?? "").Trim().ToLower();
+                try
                 {
-                    try
+                    if (string.IsNullOrWhiteSpace(bookToBorrow))
                     {
-                        bool alreadyBorrowed = borrowedBooks.Where(b => b == bookToBorrow).ToList().Count > 0;
-                        if (alreadyBorrowed)
-                        {
-                            throw new Exception("This book is already borrowed.");
-                        }
-
+                        throw new Exception("Invalid book name. Please try again.");
                     }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"An error occurred: {ex.Message}");
-                    }
+                    bool bookFound = books.Any(b => b.ToLower() == bookToBorrow);
+                    if (!bookFound) throw new Exception($"The book '{bookToBorrow}' is not available in the library.");
+                    bool alreadyBorrowed = borrowedBooks.Any(b => b.ToLower() == bookToBorrow);
+                    if (alreadyBorrowed) throw new Exception("This book is already borrowed.");
                     borrowedBooks.Add(bookToBorrow);
                     Console.WriteLine($"You have borrowed the book '{bookToBorrow}'.");
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"The book '{bookToBorrow}' is not available in the library.");
+                    Console.WriteLine($"An error occurred: {ex.Message}");
                 }
             }
             else if (input == "return")
             {
                 Console.WriteLine("Please enter the name of the book you want to return:");
-                string bookToReturn = Console.ReadLine();
-                bool bookFound = borrowedBooks.Where(b => b == bookToReturn).ToList().Count > 0;
-                if (bookFound)
+                string bookToReturn = (Console.ReadLine() ?? "").Trim().ToLower();
+                try
                 {
+                    if (string.IsNullOrWhiteSpace(bookToReturn))
+                    {
+                        throw new Exception("Invalid book name. Please try again.");
+                    }
+                    bool bookFound = borrowedBooks.Any(b => b.ToLower() == bookToReturn);
+                    if (!bookFound) throw new Exception($"The book '{bookToReturn}' was not borrowed from this library.");
+
                     borrowedBooks.Remove(bookToReturn);
                     Console.WriteLine($"You have returned the book '{bookToReturn}'.");
                 }
-                else
+                catch (Exception ex)
                 {
-                    Console.WriteLine($"The book '{bookToReturn}' was not borrowed from this library.");
+                    Console.WriteLine($"An error occurred: {ex.Message}");
                 }
             }
             else
@@ -117,7 +122,7 @@
             }
 
             Console.WriteLine("if you want to continue, please enter 'yes' and if not enter any character:");
-            string continueInput = Console.ReadLine();
+            string continueInput = (Console.ReadLine() ?? "").Trim().ToLower();
             if (continueInput != "yes")
             {
                 break;
